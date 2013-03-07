@@ -18,6 +18,9 @@
 		AF4FCE2816E80E1D00293F20 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AF4FCE2716E80E1D00293F20 /* Default-568h@2x.png */; };
 		AF4FCE2B16E80E1D00293F20 /* CLMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AF4FCE2A16E80E1D00293F20 /* CLMViewController.m */; };
 		AF4FCE2E16E80E1D00293F20 /* CLMViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF4FCE2C16E80E1D00293F20 /* CLMViewController.xib */; };
+		AF4FCE3616E80E6C00293F20 /* CLMNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = AF4FCE3516E80E6C00293F20 /* CLMNavigationController.m */; };
+		AF4FCE3916E8103600293F20 /* CLMNavigationRepresenter.m in Sources */ = {isa = PBXBuildFile; fileRef = AF4FCE3816E8103600293F20 /* CLMNavigationRepresenter.m */; };
+		AF4FCE3C16E82F4900293F20 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF4FCE3B16E82F4900293F20 /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +40,12 @@
 		AF4FCE2916E80E1D00293F20 /* CLMViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CLMViewController.h; sourceTree = "<group>"; };
 		AF4FCE2A16E80E1D00293F20 /* CLMViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CLMViewController.m; sourceTree = "<group>"; };
 		AF4FCE2D16E80E1D00293F20 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/CLMViewController.xib; sourceTree = "<group>"; };
+		AF4FCE3416E80E6C00293F20 /* CLMNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLMNavigationController.h; sourceTree = "<group>"; };
+		AF4FCE3516E80E6C00293F20 /* CLMNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLMNavigationController.m; sourceTree = "<group>"; };
+		AF4FCE3716E8103600293F20 /* CLMNavigationRepresenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLMNavigationRepresenter.h; sourceTree = "<group>"; };
+		AF4FCE3816E8103600293F20 /* CLMNavigationRepresenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLMNavigationRepresenter.m; sourceTree = "<group>"; };
+		AF4FCE3A16E82C6F00293F20 /* HelperFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HelperFunctions.h; sourceTree = "<group>"; };
+		AF4FCE3B16E82F4900293F20 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF4FCE3C16E82F4900293F20 /* QuartzCore.framework in Frameworks */,
 				AF4FCE1216E80E1D00293F20 /* UIKit.framework in Frameworks */,
 				AF4FCE1416E80E1D00293F20 /* Foundation.framework in Frameworks */,
 				AF4FCE1616E80E1D00293F20 /* CoreGraphics.framework in Frameworks */,
@@ -56,6 +66,7 @@
 		AF4FCE0516E80E1D00293F20 = {
 			isa = PBXGroup;
 			children = (
+				AF4FCE3B16E82F4900293F20 /* QuartzCore.framework */,
 				AF4FCE1716E80E1D00293F20 /* CLMNavigationViewController */,
 				AF4FCE1016E80E1D00293F20 /* Frameworks */,
 				AF4FCE0F16E80E1D00293F20 /* Products */,
@@ -89,6 +100,11 @@
 				AF4FCE2A16E80E1D00293F20 /* CLMViewController.m */,
 				AF4FCE2C16E80E1D00293F20 /* CLMViewController.xib */,
 				AF4FCE1816E80E1D00293F20 /* Supporting Files */,
+				AF4FCE3416E80E6C00293F20 /* CLMNavigationController.h */,
+				AF4FCE3516E80E6C00293F20 /* CLMNavigationController.m */,
+				AF4FCE3716E8103600293F20 /* CLMNavigationRepresenter.h */,
+				AF4FCE3816E8103600293F20 /* CLMNavigationRepresenter.m */,
+				AF4FCE3A16E82C6F00293F20 /* HelperFunctions.h */,
 			);
 			path = CLMNavigationViewController;
 			sourceTree = "<group>";
@@ -177,6 +193,8 @@
 				AF4FCE1E16E80E1D00293F20 /* main.m in Sources */,
 				AF4FCE2216E80E1D00293F20 /* CLMAppDelegate.m in Sources */,
 				AF4FCE2B16E80E1D00293F20 /* CLMViewController.m in Sources */,
+				AF4FCE3616E80E6C00293F20 /* CLMNavigationController.m in Sources */,
+				AF4FCE3916E8103600293F20 /* CLMNavigationRepresenter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
