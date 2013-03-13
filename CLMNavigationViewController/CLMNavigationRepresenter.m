@@ -11,6 +11,14 @@
 #import "HelperFunctions.h"
 
 @interface CLMNavigationRepresenter ()
+{
+    struct {
+        unsigned shouldPushItem : 1;
+        unsigned didPushItem : 1;
+        unsigned shouldPopItem : 1;
+        unsigned didPopItem : 1;
+    } _delegateHas;
+}
 
 @property (nonatomic, strong) NSMutableArray *navigationItems;
 @property (nonatomic, assign) CGPoint startLocation;
@@ -28,59 +36,113 @@
     return self;
 }
 
+- (void)setDelegate:(id)newDelegate
+{
+    _delegate = newDelegate;
+    _delegateHas.shouldPushItem = [_delegate respondsToSelector:@selector(navigationBar:shouldPushItem:)];
+    _delegateHas.didPushItem = [_delegate respondsToSelector:@selector(navigationBar:didPushItem:)];
+    _delegateHas.shouldPopItem = [_delegate respondsToSelector:@selector(navigationBar:shouldPopItem:)];
+    _delegateHas.didPopItem = [_delegate respondsToSelector:@selector(navigationBar:didPopItem:)];
+}
+
 - (void)pushNavigationItem:(CLMNavigationItem *)item animated:(BOOL)animated
 {
-    UIView *newItem = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
-    [newItem setBackgroundColor:randomColor()];
-    [self addSubview:newItem];
-    [self animatePushNewView:newItem];
-    [self.delegate navigationBar:self didPushItem:item];
+    BOOL shouldPush = YES;
+    
+    if (_delegateHas.shouldPushItem)
+    {
+        shouldPush = [_delegate navigationBar:self shouldPushItem:item];
+    }
+    
+    if (shouldPush)
+    {
+        UIView *newItem = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
+        [newItem setBackgroundColor:randomColor()];
+        [self addSubview:newItem];
+        [self.navigationItems addObject:item];
+        
+        if (animated)
+        {
+            [UIView animateWithDuration:.5 animations:^{
+                [self pushNewView:newItem];
+            }];
+        }else{
+            [self pushNewView:newItem];
+        }
+        
+        
+        if (_delegateHas.didPushItem)
+        {
+            [_delegate navigationBar:self didPushItem:item];
+        }
+    }
+
 }
 
 - (CLMNavigationItem *)popNavigationItemAnimated:(BOOL)animated
 {
-    CLMNavigationItem *item = [self.navigationItems lastObject];
-    [self animatePopView];
-    [self.navigationItems removeLastObject];
-    [self.delegate navigationBar:self didPopItem:[self.navigationItems lastObject]];
     
-    return item;
+    CLMNavigationItem *item = [self.navigationItems lastObject];
+    
+    if (item)
+    {
+        BOOL shouldPop = YES;
+        
+        if (_delegateHas.shouldPopItem)
+        {
+            shouldPop = [_delegate navigationBar:self shouldPopItem:item];
+        }
+        
+        if (shouldPop)
+        {
+            [self.navigationItems removeLastObject];
+            
+            if (animated)
+            {
+                [UIView animateWithDuration:.5 animations:^{
+                    [self popView];
+                }];
+            }else{
+                [self popView];
+            }
+            if (_delegateHas.didPopItem)
+            {
+                [self.delegate navigationBar:self didPopItem:[self.navigationItems lastObject]];
+            }
+        }
+    }
+    
+    return nil;
 }
 
-- (void)animatePushNewView:(UIView*)view
+- (void)pushNewView:(UIView*)view
 {
     [self moveStackDown];
 }
 
-- (void)animatePopView
+- (void)popView
 {
-    
     [self moveStackUp];
     [[self.subviews objectAtIndex:[self.subviews count]-1] removeFromSuperview];
 }
 
 - (void)moveStackUp
 {
-    [UIView animateWithDuration:.5 animations:^{
-        if ([self.subviews count] >= 2)
-        {
-            UIView *view = [self.subviews objectAtIndex:[self.subviews count]-2];
-            view.layer.transform = CATransform3DIdentity;
-        }
-    }];
+    if ([self.subviews count] >= 2)
+    {
+        UIView *view = [self.subviews objectAtIndex:[self.subviews count]-2];
+        view.layer.transform = CATransform3DIdentity;
+    }
 }
 
 - (void)moveStackDown
 {
-    [UIView animateWithDuration:.5 animations:^{
         for (UIView *subview in self.subviews) {
             if ([self.subviews lastObject] != subview) {
                 
                 subview.layer.transform = CATransform3DConcat(CATransform3DMakeTranslation(-15, 0, 0), CATransform3DMakeScale(.75, .75, 1));
             }
         }
-    }];
-
 }
 
                        //Handle Interaction with views;
@@ -109,9 +171,13 @@
         CGFloat distance = sqrtf(pow((location.x-self.startLocation.x),2)+pow((location.y-self.startLocation.y),2));
         if (distance > 100)
         {
-            [self moveStackUp];
+            [UIView animateWithDuration:.5 animations:^{
+                [self moveStackUp];
+            }];
         }else{
-            [self moveStackDown];
+            [UIView animateWithDuration:.5 animations:^{
+                [self moveStackDown];
+            }];
         }
     }
 }
@@ -135,10 +201,12 @@
            CGFloat distance = sqrtf(pow((location.x-self.startLocation.x),2)+pow((location.y-self.startLocation.y),2));
            if (distance > 100)
            {
-               [self popNavigationItemAnimated:NO];
+               [self popNavigationItemAnimated:YES];
            }else{
                view.center = self.startLocation;
-               [self moveStackDown];
+               [UIView animateWithDuration:.5 animations:^{
+                   [self moveStackDown];
+               }];
            }
        }];
         

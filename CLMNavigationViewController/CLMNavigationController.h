@@ -10,12 +10,17 @@
 #import "CLMNavigationRepresenter.h"
 @protocol CLMNavigationControllerDelegate;
 
+typedef void(^CLMNavigationControllerPushAnimation)(NSArray *viewControllers);
+typedef void(^CLMNavigationControllerPopAnimation)(NSArray *viewControllers, UIViewController *poppedViewController);
+
 @interface CLMNavigationController : UIViewController
 
 @property (nonatomic, strong) CLMNavigationRepresenter *representer;
 @property (nonatomic, strong) UIViewController *rootViewController;
 @property(nonatomic, assign) id<CLMNavigationControllerDelegate> delegate;
 @property(nonatomic,copy) NSArray *viewControllers;
+@property (nonatomic, assign) CLMNavigationControllerPushAnimation pushAnimation;
+@property (nonatomic, assign) CLMNavigationControllerPopAnimation popAnimation;
 
 - (id)initWithRootViewController:(UIViewController *)rootViewController;
 
@@ -31,8 +36,8 @@
 @optional
 
 // Called when the navigation controller shows a new top view controller via a push, pop or setting of the view controller stack.
-- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
-- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
+- (void)navigationController:(CLMNavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
+- (void)navigationController:(CLMNavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
 @end
 

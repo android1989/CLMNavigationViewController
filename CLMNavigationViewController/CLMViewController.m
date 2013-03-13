@@ -54,9 +54,26 @@
     [self.navigationController pushViewController:self.controller3 animated:NO];
     [self.navigationController pushViewController:self.controller4 animated:NO];
     
+    [self.navigationController setPushAnimation:^(NSArray *viewControllers){
+        
+        UIViewController *topViewController = [viewControllers lastObject];
+        
+        [topViewController.view setFrame:CGRectMake(320, 0, 320, 480)];
+        
+        [UIView animateWithDuration:1 animations:^{
+            [topViewController.view setFrame:CGRectMake(0, 0, 320, 480)];
+        }];
+     }];
     
+    [self.navigationController setPopAnimation:^(NSArray *viewControllers, UIViewController *poppedViewController){
+        
+        [UIView animateWithDuration:1 animations:^{
+            [poppedViewController.view setFrame:CGRectMake(320, 0, 320, 480)];
+        } completion:^(BOOL finished) {
+            [poppedViewController.view removeFromSuperview];
+        }];
+    }];
 
-    
 }
 
 - (void)didReceiveMemoryWarning
@@ -70,12 +87,12 @@
     UIViewController *controller = [[UIViewController alloc] initWithNibName:nil bundle:nil];
     [controller.view setFrame:self.view.bounds];
     [controller.view setBackgroundColor:[[UIColor alloc] initWithRed:(rand()%255)/255.0f green:(rand()%255)/255.0f blue:(rand()%255)/255.0f alpha:1]];
-    [self.navigationController pushViewController:controller animated:NO];
+    [self.navigationController pushViewController:controller animated:YES];
 }
 
 - (IBAction)remove:(id)sender
 {
-    [self.navigationController popViewControllerAnimated:NO];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 @end

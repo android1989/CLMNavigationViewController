@@ -8,9 +8,19 @@
 
 #import "CLMNavigationController.h"
 
+
+
 @interface CLMNavigationController () <CLMNavigationRepresenterDelegate>
+{
+    struct {
+        unsigned didShowViewController : 1;
+        unsigned willShowViewController : 1;
+    } _delegateHas;
+}
 
 @property (nonatomic, strong) NSMutableArray *navigationStack;
+
+@property (nonatomic, strong) UIViewController *visibleViewController;
 
 @end
 
@@ -41,6 +51,13 @@
     return self;
 }
 
+- (void)setDelegate:(id<CLMNavigationControllerDelegate>)newDelegate
+{
+    _delegate = newDelegate;
+    _delegateHas.didShowViewController = [_delegate respondsToSelector:@selector(navigationController:didShowViewController:animated:)];
+    _delegateHas.willShowViewController = [_delegate respondsToSelector:@selector(navigationController:willShowViewController:animated:)];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -57,26 +74,97 @@
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    [self.representer pushNavigationItem:viewController.navigationItem animated:animated];
+    assert(![self.navigationStack containsObject:viewController]);
+    
     [self.navigationStack addObject:viewController];
     [self.view insertSubview:viewController.view belowSubview:self.representer];
+    
+    [self.representer pushNavigationItem:viewController.navigationItem animated:animated];
+    [viewController willMoveToParentViewController:self];
+    
+    [_visibleViewController viewWillDisappear:YES];
+    [viewController viewWillAppear:YES];
+    
+    if (_delegateHas.willShowViewController) {
+        [_delegate navigationController:self willShowViewController:viewController animated:YES];
+    }
+    
+    if (animated && self.pushAnimation)
+    {
+        self.pushAnimation(self.navigationStack);
+    }
 }
 
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated
 {
+    //quit if trying to pop the root
+    if ([self.navigationStack count] <= 1)
+    {
+        return nil;
+    }
+    
+    UIViewController *lastObject = [self.navigationStack lastObject];
+    
+    //cut the cycle
+    [self.representer setDelegate:nil];
     [self.representer popNavigationItemAnimated:animated];
-    return [self.navigationStack lastObject];
+    [self.representer setDelegate:self];
+    
+    if (animated && self.popAnimation)
+    {
+        [lastObject willMoveToParentViewController:nil];
+        [lastObject didMoveToParentViewController:nil];
+        [self.navigationStack removeLastObject];
+        
+        UIViewController *newTopController = [self.navigationStack lastObject];
+        
+        [_visibleViewController viewWillDisappear:YES];
+        [newTopController viewWillAppear:YES];
+        
+        if (_delegateHas.willShowViewController) {
+            [_delegate navigationController:self willShowViewController:newTopController animated:YES];
+        }
+
+        self.popAnimation(self.navigationStack, lastObject);
+        
+    }else{
+       
+        [lastObject willMoveToParentViewController:nil];
+        [lastObject.view removeFromSuperview];
+        [lastObject didMoveToParentViewController:nil];
+        [self.navigationStack removeLastObject];
+        
+        UIViewController *newTopController = [self.navigationStack lastObject];
+        
+        [_visibleViewController viewWillDisappear:YES];
+        [newTopController viewWillAppear:YES];
+        
+        if (_delegateHas.willShowViewController) {
+            [_delegate navigationController:self willShowViewController:newTopController animated:YES];
+        }
+
+    }
+
+        
+    return lastObject;
 }
 
 - (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    UIViewController *view = [self.navigationStack lastObject];
-    while (view != viewController)
+    NSMutableArray *poppedViewControllers = [[NSMutableArray alloc] init];
+        
+    if ([self.navigationStack containsObject:viewController])
     {
-        view = [self popViewControllerAnimated:animated];
+        while (self.topViewController != viewController)
+        {
+            UIViewController *poppedViewController = [self popViewControllerAnimated:animated];
+            if (poppedViewController) {
+                [poppedViewControllers addObject:poppedViewController];
+            }
+        }
     }
     
-    return self.navigationStack;
+    return poppedViewControllers;
 }
 
 - (NSArray *)popToRootViewControllerAnimated:(BOOL)animated
@@ -94,12 +182,22 @@
     }
 }
 
+- (UIViewController*)topViewController
+{
+    return [self.navigationStack lastObject];
+}
+
 #pragma mark - Navigation Representer
+
+- (BOOL)navigationBar:(CLMNavigationRepresenter *)navigationRepresenter shouldPopItem:(CLMNavigationItem *)item
+{
+    [self popViewControllerAnimated:YES];
+    return NO;
+}
+
 - (void)navigationBar:(CLMNavigationRepresenter *)navigationRepresenter didPopItem:(CLMNavigationItem *)item
 {
-    UIViewController *lastObject = [self.navigationStack lastObject];
-    [lastObject.view removeFromSuperview];
-    [self.navigationStack removeLastObject];
+
 }
 
 - (void)navigationBar:(CLMNavigationRepresenter *)navigationRepresenter didPushItem:(CLMNavigationItem *)item
